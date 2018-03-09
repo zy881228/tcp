@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/123/CLionProjects/Server/main.cpp
+WinSock2.h
+-
+stdio.h
+-
+stdlib.h
+-
+iostream
+-
+
