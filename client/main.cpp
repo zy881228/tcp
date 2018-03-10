@@ -37,36 +37,68 @@ int main()
         return 2;
     }else
     {
-                //send request
-                char request[100] = {0};
-                cout<<"Please type in request:"<<endl;
-                cin>>request;
-                //printf("request:%s",request);
-                string command(request);
-                //printf("command:%s\n",command);
-                if(command == "down") {
-                    //printf("???");
-                    send(sockClient, request, sizeof(request), 0);
-                    FILE *fp = NULL;
-                    if ((fp = fopen("C:\\Users\\123\\CLionProjects\\Client\\recv.jpg", "wb+")) == NULL) {
-                        wprintf(L"fopen function failed with error: %ld\n", WSAGetLastError());
-                        return 3;
-                    }
+        while(1) {
+            //send request
+            char request[100] = {0};
+            char recvBuf[100] = {0};
+            cout << "Please type in request:" << endl;
+            cin >> request;
+            //printf("request:%s",request);
+            string command(request);
+            //printf("command:%s\n",command);
+            if (command == "down") {
+                //printf("???");
+                if(send(sockClient, request, sizeof(request), 0) != SOCKET_ERROR);
+                {
+                    recv(sockClient, recvBuf, sizeof(recvBuf), 0);
+                    cout<<"%s"<<recvBuf<<endl;
+                }
+
+                FILE *fp = NULL;
+                if ((fp = fopen("C:\\Users\\123\\CLionProjects\\Client\\recv.jpg", "wb+")) == NULL) {
+                    wprintf(L"fopen function failed with error: %ld\n", WSAGetLastError());
+                    return 3;
+                }
                 size_t size = 0;
-                char recvBuf[1024];
+                char recvFile[1024];
                 do {
-                    size = recv(sockClient, recvBuf, sizeof(recvBuf), MSG_WAITALL);
+                    size = recv(sockClient, recvFile, sizeof(recvFile), MSG_WAITALL);
                     if (size == SOCKET_ERROR) {
+
                         break;
                     }
-                    fwrite(recvBuf, size, 1, fp);
-                } while ( size = sizeof(recvBuf));
+                    if (size == 0) {
+                        break;
+                    }
+                    fwrite(recvFile, size, 1, fp);
+                } while (size = sizeof(recvFile));
                 fclose(fp);
-                cout << "transmission end!!";
-        }
-        if(command == "clos") {
-            send(sockClient, request, sizeof(request), 0);
-            closesocket(sockClient);
+                cout << "transmission end!!\n";
+                if (size == 0) {
+                    break;
+                }
+            }
+            if (command == "clos") {
+                send(sockClient, request, sizeof(request), 0);
+                cout << "TCP connection closed!" << endl;
+                break;
+            }
+            if (command == "recn") {
+                send(sockClient, request, sizeof(request), 0);
+                closesocket(sockClient);
+
+            }
+            if(send(sockClient, request, sizeof(request), 0)!= SOCKET_ERROR){
+                recv(sockClient, recvBuf, sizeof(recvBuf), 0);
+                cout<<"%s"<<recvBuf<<endl;
+            } else{
+                printf("send failed:%d\n", WSAGetLastError());
+                shutdown(sockClient,2);
+                sockClient = socket(AF_INET, SOCK_STREAM, 0);
+                if(connect(sockClient, (struct  sockaddr*)&addrSrv, sizeof(addrSrv)) != INVALID_SOCKET){
+                    cout<<"TCP Reconnect success!!"<<endl;
+                }
+            }
         }
     }
 

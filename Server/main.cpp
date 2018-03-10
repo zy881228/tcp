@@ -52,52 +52,59 @@ int main() {
                 break;
             }else
             {
-                cout<<"The Currentpos is The"<<nCurrentPos<<"/n";
+                cout<<"The Currentpos is The"<<currentPos<<"/n";
                 getPos(currentPos,client);
             }*/
         } else{
             cout<<"accept fail!/n";
         }
-        //receive message
-        char recvBuf[100] = {0};
-        memset(recvBuf, 0, sizeof(recvBuf));
-        recv(sockConn, recvBuf, sizeof(recvBuf), 0);
-        printf("%s\n", recvBuf);
-        string command(recvBuf);
-        //download pic
-        //printf("command:%s\n",command);
-        if(command == "down") {
-            char buffer[] = "start transmission......\n";
-            //send(sockConn, buffer, sizeof(buffer), 0);
-            cout<<"%s\n"<<buffer;
-            FILE *fp = NULL;
-            if ((fp = fopen("C:\\Users\\123\\CLionProjects\\Server\\test.jpg", "rb")) == NULL) {
-                printf("fopen failed with error: %ld\n", GetLastError());
-                return 0;
-            }
+        while(1) {
+            //receive message
+            char recvBuf[100] = {0};
+            memset(recvBuf, 0, sizeof(recvBuf));
             size_t size = 0;
-            char sendBuf[1024];
-            while (!feof(fp)) {
-                size = fread(sendBuf, sizeof(char), sizeof(sendBuf), fp);
-                if (send(sockConn, sendBuf, size, 0) == SOCKET_ERROR) {
-                    printf("send failed with error: %ld\n", GetLastError());
+            size = recv(sockConn, recvBuf, sizeof(recvBuf), 0);
+            if (size != SOCKET_ERROR) {
+                char reply[] = "Received!!";
+                send(sockConn, reply, sizeof(reply), 0);
+            }
+            printf("%s\n", recvBuf);
+            string command(recvBuf);
+            //download pic
+            //printf("command:%s\n",command);
+            if (command == "down") {
+                char buffer[] = "start transmission......\n";
+                //send(sockConn, buffer, sizeof(buffer), 0);
+                cout << "%s\n" << buffer;
+                FILE *fp = NULL;
+                if ((fp = fopen("C:\\Users\\123\\CLionProjects\\Server\\test.jpg", "rb")) == NULL) {
+                    printf("fopen failed with error: %ld\n", GetLastError());
                     return 0;
                 }
+                size_t size = 0;
+                char sendBuf[1024];
+                while (!feof(fp)) {
+                    size = fread(sendBuf, sizeof(char), sizeof(sendBuf), fp);
+                    if (send(sockConn, sendBuf, size, 0) == SOCKET_ERROR) {
+                        printf("send failed with error: %ld\n", GetLastError());
+                        return 0;
+                    }
+                }
+                cout << "picture send success!!\n";
+                closesocket(sockConn);
+                break;
             }
-            cout << "picture send success!!\n";
-            //closesocket(sockConn);
-        }
-        //close client
-        if( command == "clos") {
-            closesocket(sockConn);
-            break;
-        }
-        //normal receive
-        if(command == "ATsend")
-        {
-            char *normalBuf = new char[100];
-            recv(sockConn, normalBuf, sizeof(normalBuf), 0);
-            cout<<"%s\n"<<normalBuf<<endl;
+            //close client
+            if (command == "clos") {
+                closesocket(sockConn);
+                cout<<"Client connection closed!!\n";
+                break;
+            }
+            if (command == "recn") {
+                closesocket(sockConn);
+                cout<<"Client connection closed!!\n";
+                break;
+            }
         }
     }
 
